@@ -38,8 +38,6 @@ public class PortalListener implements Listener {
 
     @EventHandler
     public void southLeftSide(PlayerInteractEvent e){
-
-
         if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)){
             if(portalMaterials.contains(e.getClickedBlock().getType())){
 
@@ -114,6 +112,31 @@ public class PortalListener implements Listener {
         }
     }
 
+    @EventHandler
+    public void westRightSide(PlayerInteractEvent e){
+        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
+            if (portalMaterials.contains(e.getClickedBlock().getType())) {
+
+                Material matOfPortal = e.getClickedBlock().getType();
+                Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
+
+                Location firstCheckedLocation = locationOfFire.add(0, 0, 1);
+                Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
+                if(matOfCheckedBlock.equals(Material.AIR)){
+                    Location secondCheckedLocation = locationOfFire.add(0, 0, 1);
+                    Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
+                    /*
+                        The flint and steel was on the left side of a potential portal
+                        The right block is air, but the block to the left of the fire is the material of a potential portal
+                     */
+                    if(matOfSecondCheckBlock.equals(matOfPortal)){
+                        eastWestCheck(locationOfFire, matOfPortal);
+                    }
+                }
+            }
+        }
+    }
+
     public void northSouthCheck(Location locationOfFire, Material matOfPortal){
         for(int x = 0; x < 2; x++){
             locationOfFire.setY(locationOfFire.getY() + 1);
@@ -170,6 +193,7 @@ public class PortalListener implements Listener {
     }
 
     public void eastWestCheck(Location locationOfFire, Material matOfPortal){
+
         for(int x = 0; x < 2; x++){
             locationOfFire.setY(locationOfFire.getY() + 1);
             if(!locationOfFire.getBlock().getType().equals(matOfPortal)){
@@ -213,9 +237,9 @@ public class PortalListener implements Listener {
                                         }
 
                                         for(Block b : portalSpots){
-                                            b.setData((byte)0, false);
-                                            b.getState().update(true);
                                             b.setType(Material.PORTAL, false);
+                                            b.setData((byte)2, false);
+                                            b.getState().setRawData((byte)2);
                                         }
                                     }
                                 }
@@ -234,12 +258,19 @@ public class PortalListener implements Listener {
         Block blockUnder = p.getLocation().subtract(0, 1, 0).getBlock();
         PortalTypes portalType = PortalTypes.getType(blockUnder.getType());
 
+        if(portalType == null){
+            chatFactory.sendPlayerMessage("Please stand in the middle of portal...", true, p, plugin.getPluginPrefix());
+            e.setCancelled(true);
+            return;
+        }
+
         IslandDataConfigManager idcm = new IslandDataConfigManager(plugin);
         MessagesConfigManager mcm = new MessagesConfigManager(plugin);
         ConfigManager cm = new ConfigManager(plugin);
 
         if(idcm.isPlayerInFile(p.getUniqueId())){
             String msg;
+
             if(p.hasPermission(portalType.getAccessPermission())){
                 if(idcm.is(p.getUniqueId(), IslandDataConfigManager.DataKeys.UNLOCKED, portalType) || idcm.is(p.getUniqueId(), IslandDataConfigManager.DataKeys.PURCHASED, portalType)){
                     Location islandLocation = idcm.getIslandLocation(portalType, p.getUniqueId());
@@ -267,7 +298,7 @@ public class PortalListener implements Listener {
         msg = msg.replace("%portalType%", portalType.getName());
         msg = msg.replace("%cost%", String.valueOf(cost));
 
-        TextComponent regularMsg = new TextComponent(Utils.colorString(plugin.getPluginPrefix() + " " + msg));
+        TextComponent regularMsg = new TextComponent(Utils.colorString(plugin.getPluginPrefix() + " &f" + msg));
         TextComponent yesMsg = new TextComponent(Utils.colorString(" Click Yes "));
         TextComponent noMsg = new TextComponent(Utils.colorString("or &cNo"));
 

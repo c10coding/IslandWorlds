@@ -40,7 +40,7 @@ public class IslandDataConfigManager extends ConfigManager {
     }
 
     public boolean isPlayerInFile(UUID u){
-        return config.getString("Data." + u.toString() + ".Purchased.Ocean") != null;
+        return config.getString("Data." + u.toString()) != null;
     }
 
     /*
@@ -64,6 +64,40 @@ public class IslandDataConfigManager extends ConfigManager {
                 config.getBoolean("Data." + u.toString() + ".Unlocked." + portalType.getName());
     }
 
+    public void storeNPCID(int id, UUID u, PortalTypes portalType){
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".NPCID", id);
+        saveConfig();
+    }
+
+    public void setBossKilled(UUID u, PortalTypes portalType){
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".BossKilled", true);
+        saveConfig();
+    }
+
+    public boolean isBossKilled(UUID u, PortalTypes portalType){
+        return config.getBoolean("Data." + u.toString() + "." + portalType.getName() + ".BossKilled");
+    }
+
+    public void storeNPCLocation(UUID u, PortalTypes portalType, Location npcLocation){
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.World", npcLocation.getWorld().getName());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.X", npcLocation.getX());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.Y", npcLocation.getY());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.Z", npcLocation.getZ());
+        saveConfig();
+    }
+
+    public Location getNPCLocation(UUID u, PortalTypes portalType){
+        World w = Bukkit.getWorld(config.getString("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.World"));
+        int x = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.X");
+        int y = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.Y");
+        int z = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.NPC.Z");
+        return new Location(w, x, y ,z);
+    }
+
+    public int getNPCID(UUID u, PortalTypes portalType){
+        return config.getInt("Data." + u.toString() + "." + portalType.getName() + ".NPCID");
+    }
+
     public void setBossCooldown(UUID u, PortalTypes portalType){
         net.dohaw.play.islandworlds.files.ConfigManager cm = new net.dohaw.play.islandworlds.files.ConfigManager(plugin);
         int cooldownInHours = cm.getBossCooldown();
@@ -79,29 +113,42 @@ public class IslandDataConfigManager extends ConfigManager {
         saveConfig();
     }
 
+    public void removeCooldownTime(UUID u, PortalTypes portalType){
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".BossCooldown", null);
+        saveConfig();
+    }
+
     public int getCooldownTime(UUID u, PortalTypes portalType){
         return config.getInt("Data." + u.toString() + "." + portalType.getName() + ".BossCooldown");
     }
 
+    public boolean isBossOnCooldown(UUID u, PortalTypes portalType){
+        return config.getString("Data." + u.toString() + "." + portalType.getName() + ".BossCooldown") != null;
+    }
+
+    public boolean hasAtleastOneIsland(UUID u){
+        return is(u, DataKeys.UNLOCKED, PortalTypes.OCEAN) || is(u, DataKeys.UNLOCKED, PortalTypes.MYCEL) || is(u, DataKeys.UNLOCKED, PortalTypes.DESERT);
+    }
+
     public void createNewIsland(UUID u, PortalTypes portalType, Location locationForIsland){
-        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.World", locationForIsland.getWorld().getName());
-        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.X", locationForIsland.getBlockX());
-        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.Y", locationForIsland.getBlockY());
-        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.Z", locationForIsland.getBlockZ());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.World", locationForIsland.getWorld().getName());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.X", locationForIsland.getBlockX());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.Y", locationForIsland.getBlockY());
+        config.set("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.Z", locationForIsland.getBlockZ());
         saveConfig();
     }
 
     public Location getIslandLocation(PortalTypes portalType, UUID u){
 
-        String worldString = config.getString("Data." + u.toString() + "." + portalType.getName() + ".Location.World");
+        String worldString = config.getString("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.World");
         if(worldString == null){
             return null;
         }
         World world = Bukkit.getWorld(worldString);
 
-        int x = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.X");
-        int y = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.Y");
-        int z = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.Z");
+        int x = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.X");
+        int y = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.Y");
+        int z = config.getInt("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.Z");
 
         return new Location(world,x,y,z);
     }

@@ -21,6 +21,7 @@ import org.bukkit.Location;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.w3c.dom.events.EventException;
 
 import java.util.List;
 
@@ -61,7 +62,9 @@ public class IslandManager {
         idcm.createNewIsland(player.getUniqueId(), portalType, generatedLocation);
 
         EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, Integer.MAX_VALUE);
-        Operation operation = new ClipboardHolder(paste, world.getWorldData()).createPaste(editSession, world.getWorldData()).to(new com.sk89q.worldedit.Vector(generatedLocation.getX(), generatedLocation.getY(), generatedLocation.getZ())).build();
+        editSession.enableQueue();
+        editSession.setFastMode(true);
+        Operation operation = new ClipboardHolder(paste, world.getWorldData()).createPaste(editSession, world.getWorldData()).to(new com.sk89q.worldedit.Vector(generatedLocation.getX(), generatedLocation.getY(), generatedLocation.getZ())).ignoreAirBlocks(false).build();
 
         try {
             Operations.complete(operation);
@@ -102,8 +105,7 @@ public class IslandManager {
         switch(portalType){
             case DESERT:
                 spawnLocation.add(0, 1, 0);
-                spawnLocation.add(0, 0, 3);
-                spawnLocation.add(1, 0, 0);
+                spawnLocation.add(0, 0, 2);
                 spawnLocation.setYaw(spawnLocation.getYaw() + 180);
                 break;
             case OCEAN:
@@ -115,14 +117,16 @@ public class IslandManager {
                 spawnLocation.setYaw(spawnLocation.getYaw() + 180);
                 break;
         }
-        boss.spawn(spawnLocation);
 
+        boss.spawn(spawnLocation);
         ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
         String command = "npc select " + boss.getId();
         String command2 = "npc skin " + portalType.getNpcSkinName() + " -l";
         Bukkit.dispatchCommand(console, command);
         Bukkit.dispatchCommand(console, command2);
 
+        idcm.storeNPCID(boss.getId(), player.getUniqueId(), portalType);
+        idcm.storeNPCLocation(player.getUniqueId(), portalType, spawnLocation);
     }
 
 }

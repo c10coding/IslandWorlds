@@ -34,6 +34,7 @@ public class SchematicLoader {
 
     public void load(){
 
+        plugin.getLogger().info("Loading schematics into memory...");
         loadSchematicFiles();
         try {
             loadClipboards();
@@ -42,7 +43,6 @@ public class SchematicLoader {
         }
 
     }
-
 
     public void loadClipboards() throws IOException {
 
@@ -83,12 +83,7 @@ public class SchematicLoader {
      */
     private void loadSchematicFiles(){
 
-        File rootFolder = new File(plugin.getDataFolder(), "schematics");
-        if(!rootFolder.exists()){
-            rootFolder.mkdirs();
-        }
-
-        this.desertSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "desert.schematic");
+        this.desertSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "desert.gz");
         this.oceanSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "ocean1.schematic");
         this.mycelSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "mycel1.schematic");
 

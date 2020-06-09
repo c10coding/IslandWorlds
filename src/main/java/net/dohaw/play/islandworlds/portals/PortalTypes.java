@@ -11,7 +11,7 @@ import java.util.List;
 
 public enum PortalTypes {
 
-    DESERT("Desert", "islandworlds.access.desert", Material.SANDSTONE, "Owned", "&e&lSand Boss", "Sand.Boss"),
+    DESERT("Desert", "islandworlds.access.desert", Material.SANDSTONE, "Owned", "&e&lSand Boss", "SkeletonKing"),
     OCEAN("Ocean", "islandworlds.access.ocean" , Material.PRISMARINE, "davdd_", "&b&lWater Boss", "Water.Boss"),
     MYCEL("Mycel","islandworlds.access.mycel" , Material.HUGE_MUSHROOM_1, "Akarnell", "&4Mushroom Boss", "Mushroom.Boss");
 
@@ -64,7 +64,7 @@ public enum PortalTypes {
     public static PortalTypes getType(String portalName){
         List<PortalTypes> types = getTypes();
         for(PortalTypes type : types){
-            if(type.name.equals(portalName)){
+            if(type.name.equalsIgnoreCase(portalName)){
                 return type;
             }
         }

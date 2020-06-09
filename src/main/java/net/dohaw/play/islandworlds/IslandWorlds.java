@@ -26,6 +26,16 @@ public final class IslandWorlds extends JavaPlugin {
         validateConfigs();
         registerEvents();
         registerCommands();
+        startTimers();
+        if(isFirstTime()){
+
+            getConfig().set("IsFirstTime", false);
+            saveConfig();
+
+            getLogger().info("This is your first time loading the plugin. Please fill out the World fields in the config.yml file. ");
+            getLogger().info("Also, make sure you put the schematics into the schematics folder (IslandsWorlds/schematics)");
+            return;
+        }
 
         if (!setupEconomy() ) {
             this.getLogger().severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
@@ -47,19 +57,27 @@ public final class IslandWorlds extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        getLogger().info("Bye bye!");
     }
 
     private void registerEvents(){
+        getLogger().info("Registering events...");
         Bukkit.getServer().getPluginManager().registerEvents(new PortalListener(this), this);
         Bukkit.getServer().getPluginManager().registerEvents(new GeneralListener(this), this);
     }
 
     private void registerCommands(){
+        getLogger().info("Registering commands...");
         this.getCommand("islandworlds").setExecutor(new Commands(this));
     }
 
+    private void startTimers(){
+        getLogger().info("Starting timers...");
+        new BossCooldownTimer(this).runTaskTimer(this, 0L, 1200L);
+    }
+
     private boolean setupEconomy() {
+        getLogger().info("Setting up Vault economy...");
         if (getServer().getPluginManager().getPlugin("Vault") == null) {
             return false;
         }
@@ -72,12 +90,23 @@ public final class IslandWorlds extends JavaPlugin {
     }
 
     private void validateConfigs(){
+        getLogger().info("Loading configuration files and folders...");
         File[] files = {new File(this.getDataFolder(), "config.yml"), new File(this.getDataFolder(), "islandData.yml"), new File(this.getDataFolder(), "messages.yml")};
         for(File f : files){
             if(!f.exists()){
                 this.saveResource(f.getName(), false);
             }
         }
+
+        File rootFolder = new File(this.getDataFolder(), "schematics");
+        if(!rootFolder.exists()){
+            rootFolder.mkdirs();
+        }
+
+    }
+
+    private boolean isFirstTime(){
+        return this.getConfig().getBoolean("IsFirstTime");
     }
 
     public SchematicLoader getSchemLoader(){
