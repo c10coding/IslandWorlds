@@ -1,0 +1,15 @@
+
+MaxRange: 10000
+MinRange: -10000
+PluginPrefix: "&7[&eIsland&cWorlds&7]"
+BossCooldown: 1
+
+Worlds:
+  Desert: desert
+  Ocean: ocean
+  Mycel: mycel
+
+Costs:
+  Desert:
+  Ocean:
+  Mycel:

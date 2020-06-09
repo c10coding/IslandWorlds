@@ -1,0 +1,22 @@
+name: IslandWorlds
+version: ${project.version}
+main: net.dohaw.play.islandworlds.IslandWorlds
+depend:
+  - Citizens
+  - WorldEdit
+  - Vault
+commands:
+  islandworlds:
+    description: The base command for this plugin
+    aliases:
+      - iw
+
+permissions:
+  islandworlds.access.desert:
+    default: op
+  islandworlds.access.ocean:
+    default: op
+  islandworlds.access.mycel:
+    default: op
+
+
