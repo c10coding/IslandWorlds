@@ -3,6 +3,7 @@ package net.dohaw.play.islandworlds.managers;
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
@@ -61,7 +62,9 @@ public class IslandManager {
         this.spawnLocation = generatedLocation;
         idcm.createNewIsland(player.getUniqueId(), portalType, generatedLocation);
 
-        EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(world, Integer.MAX_VALUE);
+        WorldEditPlugin worldEdit = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+        EditSession editSession = worldEdit.getWorldEdit().getEditSessionFactory().getEditSession(world, Integer.MAX_VALUE);
+
         editSession.enableQueue();
         editSession.setFastMode(true);
         Operation operation = new ClipboardHolder(paste, world.getWorldData()).createPaste(editSession, world.getWorldData()).to(new com.sk89q.worldedit.Vector(generatedLocation.getX(), generatedLocation.getY(), generatedLocation.getZ())).ignoreAirBlocks(false).build();

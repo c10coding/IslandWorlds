@@ -149,7 +149,7 @@ public class Commands implements CommandExecutor {
                             idcm.setBossCooldown(player.getUniqueId(), type);
                             despawnNearestNPC(player, PortalTypes.getType(portalType));
                         }else{
-                            chatFactory.sendPlayerMessage("This boss is on cooldown!", true, player, prefix);
+                            chatFactory.sendPlayerMessage("This boss is on cooldown! &cTime left: " + idcm.getCooldownTime(player.getUniqueId(), type) + " minutes", true, player, prefix);
                         }
                     }
 

@@ -15,7 +15,6 @@ import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -38,23 +37,25 @@ public class PortalListener implements Listener {
 
     @EventHandler
     public void southLeftSide(PlayerInteractEvent e){
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)){
-            if(portalMaterials.contains(e.getClickedBlock().getType())){
+        if(e.getItem() != null){
+            if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)){
+                if(portalMaterials.contains(e.getClickedBlock().getType())){
 
-                Material matOfPortal = e.getClickedBlock().getType();
-                Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
+                    Material matOfPortal = e.getClickedBlock().getType();
+                    Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
 
-                Location firstCheckedLocation = locationOfFire.subtract(1, 0, 0);
-                Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
-                if(matOfCheckedBlock.equals(Material.AIR)){
-                    Location secondCheckedLocation = locationOfFire.add(2, 0, 0);
-                    Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
+                    Location firstCheckedLocation = locationOfFire.subtract(1, 0, 0);
+                    Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
+                    if(matOfCheckedBlock.equals(Material.AIR)){
+                        Location secondCheckedLocation = locationOfFire.add(2, 0, 0);
+                        Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
                     /*
                         The flint and steel was on the left side of a potential portal
                         The right block is air, but the block to the left of the fire is the material of a potential portal
                      */
-                    if(matOfSecondCheckBlock.equals(matOfPortal)){
-                        northSouthCheck(locationOfFire, matOfPortal);
+                        if(matOfSecondCheckBlock.equals(matOfPortal)){
+                            northSouthCheck(locationOfFire, matOfPortal);
+                        }
                     }
                 }
             }
@@ -63,24 +64,26 @@ public class PortalListener implements Listener {
 
     @EventHandler
     public void southRightSide(PlayerInteractEvent e){
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
-            if (portalMaterials.contains(e.getClickedBlock().getType())) {
+        if(e.getItem() != null) {
+            if (e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
+                if (portalMaterials.contains(e.getClickedBlock().getType())) {
 
-                Material matOfPortal = e.getClickedBlock().getType();
-                Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
+                    Material matOfPortal = e.getClickedBlock().getType();
+                    Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
 
-                Location firstCheckedLocation = locationOfFire.add(1, 0, 0);
-                Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
-                if (matOfCheckedBlock.equals(Material.AIR)) {
-                    Location secondCheckedLocation = locationOfFire.add(1, 0, 0);
-                    Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
+                    Location firstCheckedLocation = locationOfFire.add(1, 0, 0);
+                    Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
+                    if (matOfCheckedBlock.equals(Material.AIR)) {
+                        Location secondCheckedLocation = locationOfFire.add(1, 0, 0);
+                        Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
 
-                     /*
-                        The flint and steel was on the right side of a potential portal
-                        It gets the location in the same postion as the other method
-                     */
-                    if (matOfSecondCheckBlock.equals(matOfPortal)) {
-                        northSouthCheck(locationOfFire, matOfPortal);
+                         /*
+                            The flint and steel was on the right side of a potential portal
+                            It gets the location in the same postion as the other method
+                         */
+                        if (matOfSecondCheckBlock.equals(matOfPortal)) {
+                            northSouthCheck(locationOfFire, matOfPortal);
+                        }
                     }
                 }
             }
@@ -89,23 +92,25 @@ public class PortalListener implements Listener {
 
     @EventHandler
     public void westLeftSide(PlayerInteractEvent e){
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
-            if (portalMaterials.contains(e.getClickedBlock().getType())) {
+        if(e.getItem() != null){
+            if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
+                if (portalMaterials.contains(e.getClickedBlock().getType())) {
 
-                Material matOfPortal = e.getClickedBlock().getType();
-                Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
+                    Material matOfPortal = e.getClickedBlock().getType();
+                    Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
 
-                Location firstCheckedLocation = locationOfFire.subtract(0, 0, 1);
-                Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
-                if(matOfCheckedBlock.equals(Material.AIR)){
-                    Location secondCheckedLocation = locationOfFire.add(0, 0, 2);
-                    Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
+                    Location firstCheckedLocation = locationOfFire.subtract(0, 0, 1);
+                    Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
+                    if(matOfCheckedBlock.equals(Material.AIR)){
+                        Location secondCheckedLocation = locationOfFire.add(0, 0, 2);
+                        Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
                     /*
                         The flint and steel was on the left side of a potential portal
                         The right block is air, but the block to the left of the fire is the material of a potential portal
                      */
-                    if(matOfSecondCheckBlock.equals(matOfPortal)){
-                        eastWestCheck(locationOfFire, matOfPortal);
+                        if(matOfSecondCheckBlock.equals(matOfPortal)){
+                            eastWestCheck(locationOfFire, matOfPortal);
+                        }
                     }
                 }
             }
@@ -114,23 +119,25 @@ public class PortalListener implements Listener {
 
     @EventHandler
     public void westRightSide(PlayerInteractEvent e){
-        if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
-            if (portalMaterials.contains(e.getClickedBlock().getType())) {
+        if(e.getItem() != null){
+            if(e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getItem().getType().equals(Material.FLINT_AND_STEEL)) {
+                if (portalMaterials.contains(e.getClickedBlock().getType())) {
 
-                Material matOfPortal = e.getClickedBlock().getType();
-                Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
+                    Material matOfPortal = e.getClickedBlock().getType();
+                    Location locationOfFire = e.getClickedBlock().getLocation().add(0, 1, 0);
 
-                Location firstCheckedLocation = locationOfFire.add(0, 0, 1);
-                Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
-                if(matOfCheckedBlock.equals(Material.AIR)){
-                    Location secondCheckedLocation = locationOfFire.add(0, 0, 1);
-                    Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
+                    Location firstCheckedLocation = locationOfFire.add(0, 0, 1);
+                    Material matOfCheckedBlock = firstCheckedLocation.getBlock().getType();
+                    if(matOfCheckedBlock.equals(Material.AIR)){
+                        Location secondCheckedLocation = locationOfFire.add(0, 0, 1);
+                        Material matOfSecondCheckBlock = secondCheckedLocation.getBlock().getType();
                     /*
                         The flint and steel was on the left side of a potential portal
                         The right block is air, but the block to the left of the fire is the material of a potential portal
                      */
-                    if(matOfSecondCheckBlock.equals(matOfPortal)){
-                        eastWestCheck(locationOfFire, matOfPortal);
+                        if(matOfSecondCheckBlock.equals(matOfPortal)){
+                            eastWestCheck(locationOfFire, matOfPortal);
+                        }
                     }
                 }
             }

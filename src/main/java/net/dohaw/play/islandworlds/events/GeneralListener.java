@@ -31,10 +31,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.EquipmentSlot;
 
 import java.util.ArrayList;
@@ -164,9 +161,21 @@ public class GeneralListener implements Listener {
     }
 
     @EventHandler
+    public void onPlayerSendCommand(PlayerCommandPreprocessEvent e){
+        if(isFightingBoss(e.getPlayer())){
+            String[] args = e.getMessage().split(" ");
+            if(!args[0].equalsIgnoreCase("heal") && !args[0].equalsIgnoreCase("feed")){
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void rightClickNPC(PlayerInteractEntityEvent e){
+
         Player player = e.getPlayer();
         Entity rightClickedEntity = e.getRightClicked();
+        idcm = new IslandDataConfigManager(plugin);
 
         //Prevents the method from running twice
         if(e.getHand().equals(EquipmentSlot.OFF_HAND)){
@@ -242,6 +251,18 @@ public class GeneralListener implements Listener {
                 chatFactory.sendPlayerMessage(mcm.getMessage(MessagesConfigManager.Messages.BOSS_DEFEAT), true, killer, plugin.getPluginPrefix());
             }
         }
+    }
+
+    private boolean isFightingBoss(Player p){
+        World world = p.getWorld();
+        PortalTypes portalType = PortalTypes.getType(cm, world);
+        if(portalType != null){
+            Location playerIslandLocation = idcm.getIslandLocation(portalType, p.getUniqueId());
+            if(playerIslandLocation.distance(p.getLocation()) < 50){
+                return isBossAlive(playerIslandLocation);
+            }
+        }
+        return false;
     }
 
     private boolean isAllowedToInteract(Player playerInteracting){
