@@ -1,7 +1,6 @@
 package net.dohaw.play.islandworlds.managers;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
@@ -19,12 +18,15 @@ import net.dohaw.play.islandworlds.portals.PortalTypes;
 import net.dohaw.play.islandworlds.utils.Utils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
+import org.bukkit.block.Block;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.w3c.dom.events.EventException;
 
 import java.util.List;
+import java.util.UUID;
 
 public class IslandManager {
 
@@ -36,6 +38,7 @@ public class IslandManager {
     final private int ISLAND_DISTANCE = 500;
     private Player player;
     private Location spawnLocation;
+    private OfflinePlayer offlinePlayer;
 
     public IslandManager(IslandWorlds plugin, PortalTypes portalType, Player player, IslandDataConfigManager idcm){
         this.plugin = plugin;
@@ -44,6 +47,26 @@ public class IslandManager {
         this.world = plugin.getSchemLoader().getWorld(portalType);
         this.idcm = idcm;
         this.player = player;
+    }
+
+    /*
+        Using this if schematics are already loaded and just need to remove the island
+     */
+    public IslandManager(IslandWorlds plugin, PortalTypes portalType, Player player){
+        this.plugin = plugin;
+        this.portalType = portalType;
+        this.player = player;
+        this.idcm = new IslandDataConfigManager(plugin);
+    }
+
+    /*
+        If a admin wants to remove a player's island
+     */
+    public IslandManager(IslandWorlds plugin, PortalTypes portalType, OfflinePlayer offlinePlayer){
+        this.plugin = plugin;
+        this.portalType = portalType;
+        this.offlinePlayer = offlinePlayer;
+        this.idcm = new IslandDataConfigManager(plugin);
     }
 
     public void generateIsland(){
@@ -78,6 +101,51 @@ public class IslandManager {
 
         spawnNPC();
 
+    }
+
+    /*
+        For players. This was removed because the plugin user did not want it
+     */
+
+    /*
+    public void removeIsland(){
+
+        Location islandLocation = idcm.getIslandLocation(portalType, player.getUniqueId());
+        Location playerLocation = player.getLocation();
+        if(playerLocation.distance(islandLocation) <= 50){
+            player.performCommand("spawn");
+        }
+
+        removeBlocksAndNPC(player.getUniqueId(), islandLocation);
+
+    }*/
+
+    public void removeIslandAdmin(){
+        Location islandLocation = idcm.getIslandLocation(portalType, offlinePlayer.getUniqueId());
+        if(offlinePlayer.isOnline()){
+            Location playerLocation = offlinePlayer.getPlayer().getLocation();
+            if(playerLocation.getWorld().equals(islandLocation.getWorld())){
+                if(playerLocation.distance(islandLocation) <= 50){
+                    offlinePlayer.getPlayer().performCommand("spawn");
+                }
+            }
+        }
+
+       removeBlocksAndNPC(offlinePlayer.getUniqueId(), islandLocation);
+
+    }
+
+    private void removeBlocksAndNPC(UUID u, Location islandLocation){
+        int npcID = idcm.getNPCID(u, portalType);
+        NPCRegistry registry = CitizensAPI.getNPCRegistry();
+        registry.getById(npcID).destroy();
+
+        List<Block> islandBlocks = Utils.getNearbyBlocks(islandLocation, 30);
+        for(Block b : islandBlocks){
+            b.setType(Material.AIR);
+        }
+
+        idcm.removeIsland(u, portalType);
     }
 
     public Location getNewIslandLocation(){

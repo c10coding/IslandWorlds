@@ -10,17 +10,14 @@ import net.dohaw.play.islandworlds.files.IslandDataConfigManager;
 import net.dohaw.play.islandworlds.files.MessagesConfigManager;
 import net.dohaw.play.islandworlds.managers.IslandManager;
 import net.dohaw.play.islandworlds.portals.PortalTypes;
-import net.md_5.bungee.api.chat.ClickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-
-import java.util.Collection;
 
 public class Commands implements CommandExecutor {
 
@@ -42,7 +39,45 @@ public class Commands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
         idcm = new IslandDataConfigManager(plugin);
+
+        /*
+            The removing of the player's island by an admin
+         */
         if(args.length > 0){
+
+            if(sender.hasPermission("islandworlds.delete")){
+                if(args[0].equalsIgnoreCase("delete") && args.length == 3){
+                    String portalTypeString = args[1];
+                    String playerName = args[2];
+                    PortalTypes portalType = PortalTypes.getType(portalTypeString);
+                    OfflinePlayer op = Bukkit.getOfflinePlayer(playerName);
+
+                    if(op != null){
+                        if(portalType != null){
+                            if(idcm.is(op.getUniqueId(), IslandDataConfigManager.DataKeys.UNLOCKED, portalType)){
+                                if(idcm.getIslandLocation(portalType, op.getUniqueId()) != null){
+                                    IslandManager islandManager = new IslandManager(plugin, portalType, op);
+                                    islandManager.removeIslandAdmin();
+                                    chatFactory.sendPlayerMessage("You have deleted &e" + op.getName() + "'s &b" + portalType.getName() + " &fisland!", true, sender, prefix);
+                                }else{
+                                    chatFactory.sendPlayerMessage("This island isn't generated!", true, sender, prefix);
+                                }
+                            }
+                        }else{
+                            chatFactory.sendPlayerMessage("This isn't a valid island type. The types are &eocean, mycel, and desert", true, sender, prefix);
+                        }
+                    }else{
+                        chatFactory.sendPlayerMessage("This is not a valid player!", true, sender, prefix);
+                    }
+                    return true;
+                }
+            }else{
+                chatFactory.sendPlayerMessage("You don't have permission to use that command!", true, sender, prefix);
+            }
+
+            /*
+                Non-Op commands
+             */
             if(sender instanceof Player){
                 Player player = (Player) sender;
                 if(args[0].equalsIgnoreCase("purchase") && args.length == 2){
@@ -62,7 +97,6 @@ public class Commands implements CommandExecutor {
                                 if(playerBalance >= costOfIsland){
 
                                     IslandManager islandManager = new IslandManager(plugin, type, player, idcm);
-
                                     idcm.set(player.getUniqueId(), IslandDataConfigManager.DataKeys.PURCHASED, type, true);
                                     idcm.set(player.getUniqueId(), IslandDataConfigManager.DataKeys.UNLOCKED, type, true);
                                     msg = mcm.getMessage(MessagesConfigManager.Messages.PORTAL_PURCHASE);
@@ -145,20 +179,51 @@ public class Commands implements CommandExecutor {
                         String portalType = args[2];
                         PortalTypes type = PortalTypes.getType(portalType);
                         if(!idcm.isBossOnCooldown(player.getUniqueId(), type)){
-                            Bukkit.dispatchCommand(player, "boss spawn " + type.getBossCommandName());
                             idcm.setBossCooldown(player.getUniqueId(), type);
                             despawnNearestNPC(player, PortalTypes.getType(portalType));
+                            disableFlyForPlayers(player.getLocation());
+                            Bukkit.dispatchCommand(Bukkit.getServer().getConsoleSender(), "boss spawn " + type.getBossCommandName() + " " + player.getWorld().getName() + "," + player.getLocation().getBlockX() + "," + player.getLocation().getBlockY() + "," + player.getLocation().getBlockZ());
                         }else{
                             chatFactory.sendPlayerMessage("This boss is on cooldown! &cTime left: " + idcm.getCooldownTime(player.getUniqueId(), type) + " minutes", true, player, prefix);
                         }
                     }
 
-                }
+                }/*else if(args[0].equalsIgnoreCase("delete") && args.length == 2){
+                    String portalType = args[1];
+                    if(portalType.equalsIgnoreCase("ocean") || portalType.equalsIgnoreCase("desert") || portalType.equalsIgnoreCase("mycel")){
+                        PortalTypes type = PortalTypes.getType(portalType);
+                        IslandManager islandmanager = new IslandManager(plugin, type, player);
+                        if(idcm.is(player.getUniqueId(), IslandDataConfigManager.DataKeys.UNLOCKED, type)){
+                            if(idcm.getIslandLocation(type, player.getUniqueId()) != null){
+                                islandmanager.removeIsland();
+                                chatFactory.sendPlayerMessage("Removing island...", true, player, prefix);
+                            }else{
+                                chatFactory.sendPlayerMessage("No island of this type was found!", true, player, prefix);
+                            }
+                        }else{
+                            chatFactory.sendPlayerMessage("You do not have this island unlocked!", true, player, prefix);
+                        }
+                    }else{
+                        chatFactory.sendPlayerMessage("You did not give a valid island type. The island types are &edesert, ocean, and mycel!", true, player, prefix);
+                    }
+                }*/
             }else{
                 chatFactory.sendPlayerMessage("Only players can run these commands!", true, sender, prefix);
             }
         }
         return false;
+    }
+
+    private void disableFlyForPlayers(Location playerLocation) {
+        for(Entity e : playerLocation.getWorld().getNearbyEntities(playerLocation, 30, 30, 30)){
+            if(e instanceof Player){
+                Player p = (Player) e;
+                if(p.isFlying() || p.getAllowFlight()){
+                    p.setFlying(false);
+                    p.setAllowFlight(false);
+                }
+            }
+        }
     }
 
     private void despawnNearestNPC(Player player, PortalTypes portalType){

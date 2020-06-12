@@ -18,5 +18,8 @@ permissions:
     default: op
   islandworlds.access.mycel:
     default: op
+  islandworlds.delete:
+    default: op
+    description: "Allows the player to delete islands"
 
 

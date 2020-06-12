@@ -281,9 +281,16 @@ public class PortalListener implements Listener {
             if(p.hasPermission(portalType.getAccessPermission())){
                 if(idcm.is(p.getUniqueId(), IslandDataConfigManager.DataKeys.UNLOCKED, portalType) || idcm.is(p.getUniqueId(), IslandDataConfigManager.DataKeys.PURCHASED, portalType)){
                     Location islandLocation = idcm.getIslandLocation(portalType, p.getUniqueId());
-                    msg = mcm.getMessage(MessagesConfigManager.Messages.TELEPORTATION);
-                    msg = msg.replace("%portalType%", portalType.getName());
-                    p.teleport(islandLocation);
+                    if(islandLocation != null){
+                        msg = mcm.getMessage(MessagesConfigManager.Messages.TELEPORTATION);
+                        msg = msg.replace("%portalType%", portalType.getName());
+                        p.teleport(islandLocation);
+                    }else{
+                        IslandManager islandManager = new IslandManager(plugin, portalType, p, idcm);
+                        islandManager.generateIsland();
+                        msg = "No island was found to teleport to. Generating a new one...";
+                    }
+
                     chatFactory.sendPlayerMessage(msg, true, p, plugin.getPluginPrefix());
                 }else{
                     sendConfirmation(p, portalType, cm.getCost(portalType));

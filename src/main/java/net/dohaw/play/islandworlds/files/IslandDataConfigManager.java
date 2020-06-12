@@ -6,6 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -138,6 +139,11 @@ public class IslandDataConfigManager extends ConfigManager {
         saveConfig();
     }
 
+    public void removeIsland(UUID u, PortalTypes portalType){
+        config.set("Data." + u.toString() + "." + portalType.getName(), null);
+        saveConfig();
+    }
+
     public Location getIslandLocation(PortalTypes portalType, UUID u){
 
         String worldString = config.getString("Data." + u.toString() + "." + portalType.getName() + ".Location.Island.World");
@@ -218,6 +224,11 @@ public class IslandDataConfigManager extends ConfigManager {
             }
         }
         return locationsOfIslands;
+    }
+
+    @Override
+    public void reloadConfig(){
+        this.config = YamlConfiguration.loadConfiguration(this.file);
     }
 
 

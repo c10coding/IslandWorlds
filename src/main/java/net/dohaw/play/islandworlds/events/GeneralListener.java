@@ -97,6 +97,7 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent e){
+        idcm.reloadConfig();
         World playerWorld = e.getPlayer().getWorld();
         if(PortalTypes.getType(cm, playerWorld) != null){
             e.setCancelled(true);
@@ -105,6 +106,7 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onCobbleGenGeneration(BlockFormEvent e){
+        idcm.reloadConfig();
         Block b = e.getBlock();
         World world = b.getWorld();
         if(PortalTypes.getType(cm, world) != null){
@@ -162,6 +164,7 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onPlayerSendCommand(PlayerCommandPreprocessEvent e){
+        idcm.reloadConfig();
         if(isFightingBoss(e.getPlayer())){
             String[] args = e.getMessage().split(" ");
             if(!args[0].equalsIgnoreCase("heal") && !args[0].equalsIgnoreCase("feed")){
@@ -196,15 +199,14 @@ public class GeneralListener implements Listener {
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e){
+        idcm.reloadConfig();
         Player player = e.getPlayer();
         for(PortalTypes type : PortalTypes.values()){
             if(idcm.is(player.getUniqueId(), IslandDataConfigManager.DataKeys.UNLOCKED, type)){
-                World w = player.getWorld();
-                PortalTypes portalType = PortalTypes.getType(cm, w);
                 Location islandLocation = idcm.getIslandLocation(type, player.getUniqueId());
 
                 //If it's been tracked that the play has killed the boss
-                if(!idcm.isBossKilled(player.getUniqueId(), portalType)){
+                if(!idcm.isBossKilled(player.getUniqueId(), type)){
                     respawnNPC(islandLocation);
                 }
 
@@ -221,6 +223,7 @@ public class GeneralListener implements Listener {
      */
     @EventHandler
     public void onPlayerDeath(PlayerDeathEvent e){
+        idcm.reloadConfig();
         Player player = e.getEntity();
         PortalTypes portalType = PortalTypes.getType(cm, player.getWorld());
         if(portalType != null){
@@ -258,8 +261,10 @@ public class GeneralListener implements Listener {
         PortalTypes portalType = PortalTypes.getType(cm, world);
         if(portalType != null){
             Location playerIslandLocation = idcm.getIslandLocation(portalType, p.getUniqueId());
-            if(playerIslandLocation.distance(p.getLocation()) < 50){
-                return isBossAlive(playerIslandLocation);
+            if(playerIslandLocation != null){
+                if(playerIslandLocation.distance(p.getLocation()) < 50){
+                    return isBossAlive(playerIslandLocation);
+                }
             }
         }
         return false;
@@ -311,6 +316,7 @@ public class GeneralListener implements Listener {
     }
 
     private void killNearbyBoss(Location islandLocation){
+        idcm.reloadConfig();
         Collection<Entity> nearbyEntities = islandLocation.getWorld().getNearbyEntities(islandLocation, 30, 30, 30);
         for(Entity entity : nearbyEntities){
             if(isABoss(entity)){
@@ -319,6 +325,9 @@ public class GeneralListener implements Listener {
         }
     }
 
+    /*
+        These values can't be null unless the configuration file isn't refreshed for whatever reason. no null checks
+     */
     private void respawnNPC(Location locationNearIsland){
         World world = locationNearIsland.getWorld();
         PortalTypes portalType = PortalTypes.getType(new ConfigManager(plugin), world);
