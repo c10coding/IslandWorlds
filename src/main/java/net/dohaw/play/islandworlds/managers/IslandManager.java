@@ -6,6 +6,7 @@ import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
+import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import com.sk89q.worldedit.world.World;
 import net.citizensnpcs.api.CitizensAPI;
@@ -90,11 +91,11 @@ public class IslandManager {
 
         editSession.enableQueue();
         editSession.setFastMode(true);
-        Operation operation = new ClipboardHolder(paste, world.getWorldData()).createPaste(editSession, world.getWorldData()).to(new com.sk89q.worldedit.Vector(generatedLocation.getX(), generatedLocation.getY(), generatedLocation.getZ())).ignoreAirBlocks(false).build();
+        Operation operation = new ClipboardHolder(paste).createPaste(editSession).to(BlockVector3.at(generatedLocation.getX(), generatedLocation.getY(), generatedLocation.getZ())).ignoreAirBlocks(false).build();
 
         try {
             Operations.complete(operation);
-            editSession.flushQueue();
+            editSession.flushSession();
         } catch (WorldEditException e) {
             e.printStackTrace();
         }
@@ -138,7 +139,12 @@ public class IslandManager {
     private void removeBlocksAndNPC(UUID u, Location islandLocation){
         int npcID = idcm.getNPCID(u, portalType);
         NPCRegistry registry = CitizensAPI.getNPCRegistry();
-        registry.getById(npcID).destroy();
+
+        try{
+            registry.getById(npcID).destroy();
+        }catch(NullPointerException e){
+            plugin.getLogger().warning("There was no NPC found for this island. Ignoring...");
+        }
 
         List<Block> islandBlocks = Utils.getNearbyBlocks(islandLocation, 30);
         for(Block b : islandBlocks){

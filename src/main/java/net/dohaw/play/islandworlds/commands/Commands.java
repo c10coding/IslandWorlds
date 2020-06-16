@@ -2,6 +2,7 @@ package net.dohaw.play.islandworlds.commands;
 
 import me.c10coding.coreapi.chat.Chat;
 import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.event.DespawnReason;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import net.dohaw.play.islandworlds.IslandWorlds;
@@ -229,7 +230,7 @@ public class Commands implements CommandExecutor {
     private void despawnNearestNPC(Player player, PortalTypes portalType){
         NPCRegistry registry = CitizensAPI.getNPCRegistry();
         NPC bossSpawner = registry.getById(idcm.getNPCID(player.getUniqueId(), portalType));
-        bossSpawner.despawn();
+        bossSpawner.despawn(DespawnReason.PENDING_RESPAWN);
     }
 
 }

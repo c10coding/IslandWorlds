@@ -7,6 +7,7 @@ import net.dohaw.play.islandworlds.files.IslandDataConfigManager;
 import net.dohaw.play.islandworlds.portals.PortalTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -32,14 +33,14 @@ public class BossCooldownTimer extends BukkitRunnable {
     public void run() {
 
         idcm = new IslandDataConfigManager(plugin);
-        for(Player onlinePlayer : Bukkit.getOnlinePlayers()){
-            if(idcm.isPlayerInFile(onlinePlayer.getUniqueId())){
+        for(OfflinePlayer offlinePlayer : Bukkit.getOfflinePlayers()){
+            if(idcm.isPlayerInFile(offlinePlayer.getUniqueId())){
                 for(PortalTypes portalType : PortalTypes.values()){
-                    if(idcm.isBossOnCooldown(onlinePlayer.getUniqueId(), portalType)){
-                        if(idcm.getCooldownTime(onlinePlayer.getUniqueId(), portalType) != 0){
-                            idcm.decreaseBossCooldown(onlinePlayer.getUniqueId(), portalType);
+                    if(idcm.isBossOnCooldown(offlinePlayer.getUniqueId(), portalType)){
+                        if(idcm.getCooldownTime(offlinePlayer.getUniqueId(), portalType) != 0){
+                            idcm.decreaseBossCooldown(offlinePlayer.getUniqueId(), portalType);
                         }else{
-                            idcm.removeCooldownTime(onlinePlayer.getUniqueId(), portalType);
+                            idcm.removeCooldownTime(offlinePlayer.getUniqueId(), portalType);
                         }
                     }
                 }

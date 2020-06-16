@@ -1,10 +1,9 @@
 package net.dohaw.play.islandworlds.managers;
 
-import com.sk89q.jnbt.CompoundTag;
-import com.sk89q.jnbt.NBTInputStream;
-import com.sk89q.worldedit.bukkit.BukkitUtil;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.world.World;
 import net.dohaw.play.islandworlds.IslandWorlds;
@@ -48,30 +47,30 @@ public class SchematicLoader {
 
         org.bukkit.World oceanBukkitWorld = Bukkit.getWorld(cm.getWorld(PortalTypes.OCEAN));
         if(oceanBukkitWorld != null){
-            this.oceanWorld = BukkitUtil.getLocalWorld(oceanBukkitWorld);
-            ClipboardFormat format = ClipboardFormat.findByFile(oceanSchematicFile);
+            this.oceanWorld = BukkitAdapter.adapt(oceanBukkitWorld);
+            ClipboardFormat format = ClipboardFormats.findByFile(oceanSchematicFile);
             ClipboardReader reader = format.getReader(new FileInputStream(oceanSchematicFile));
-            this.oceanPaste = reader.read(oceanWorld.getWorldData());
+            this.oceanPaste = reader.read();
         }else{
             plugin.getLogger().severe("Failed to load the Ocean schematic clipboard. The world isn't valid!");
         }
 
         org.bukkit.World mycelBukkitWorld = Bukkit.getWorld(cm.getWorld(PortalTypes.MYCEL));
         if(mycelBukkitWorld != null){
-            this.mycelWorld = BukkitUtil.getLocalWorld(mycelBukkitWorld);
-            ClipboardFormat format = ClipboardFormat.findByFile(mycelSchematicFile);
+            this.mycelWorld = BukkitAdapter.adapt(mycelBukkitWorld);
+            ClipboardFormat format = ClipboardFormats.findByFile(mycelSchematicFile);
             ClipboardReader reader = format.getReader(new FileInputStream(mycelSchematicFile));
-            this.mycelPaste = reader.read(mycelWorld.getWorldData());
+            this.mycelPaste = reader.read();
         }else{
             plugin.getLogger().severe("Failed to load the Mycel schematic clipboard. The world isn't valid!");
         }
 
         org.bukkit.World desertBukkitWorld = Bukkit.getWorld(cm.getWorld(PortalTypes.DESERT));
         if(desertBukkitWorld != null){
-            this.desertWorld = BukkitUtil.getLocalWorld(desertBukkitWorld);
-            ClipboardFormat format = ClipboardFormat.findByFile(desertSchematicFile);
+            this.desertWorld = BukkitAdapter.adapt(desertBukkitWorld);
+            ClipboardFormat format = ClipboardFormats.findByFile(desertSchematicFile);
             ClipboardReader reader = format.getReader(new FileInputStream(desertSchematicFile));
-            this.desertPaste = reader.read(desertWorld.getWorldData());
+            this.desertPaste = reader.read();
         }else{
             plugin.getLogger().severe("Failed to load the Desert schematic clipboard. The world isn't valid!");
         }
@@ -82,11 +81,9 @@ public class SchematicLoader {
         Loads the schematic files into memory for easy use
      */
     private void loadSchematicFiles(){
-
         this.desertSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "desert.gz");
         this.oceanSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "ocean1.schematic");
         this.mycelSchematicFile = new File(plugin.getDataFolder() + File.separator + "/schematics", "mycel1.schematic");
-
     }
 
     public Clipboard getClipboard(PortalTypes portalType){

@@ -2,6 +2,7 @@ package net.dohaw.play.islandworlds.events;
 
 import me.c10coding.coreapi.chat.Chat;
 import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.CitizensPlugin;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.api.npc.NPCRegistry;
 import net.dohaw.play.islandworlds.IslandWorlds;
@@ -198,6 +199,25 @@ public class GeneralListener implements Listener {
     }
 
     @EventHandler
+    public void onLiquidPlace(PlayerBucketEmptyEvent e){
+        if(isOnIsland(e.getPlayer())){
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPlaceMobEgg(PlayerInteractEvent e){
+        Player p = e.getPlayer();
+        if(isOnIsland(p)){
+            if(e.getItem() != null){
+                if(e.getItem().getType().equals(Material.MONSTER_EGG)){
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onPlayerLeave(PlayerQuitEvent e){
         idcm.reloadConfig();
         Player player = e.getPlayer();
@@ -333,7 +353,8 @@ public class GeneralListener implements Listener {
         PortalTypes portalType = PortalTypes.getType(new ConfigManager(plugin), world);
         UUID ownerOfIsland = idcm.getOwnerFromLocation(locationNearIsland, portalType);
         NPCRegistry registry = CitizensAPI.getNPCRegistry();
-        NPC bossSpawner = registry.getById(idcm.getNPCID(ownerOfIsland, portalType));
+        int npcID = idcm.getNPCID(ownerOfIsland, portalType);
+        NPC bossSpawner = registry.getById(npcID);
         if(idcm.getNPCLocation(ownerOfIsland, portalType) != null){
             Location npcLocation = idcm.getNPCLocation(ownerOfIsland, portalType);
             bossSpawner.spawn(npcLocation);
@@ -372,6 +393,18 @@ public class GeneralListener implements Listener {
         regularMsg.addExtra(clickablePart1);
         regularMsg.addExtra(clickablePart2);
         p.spigot().sendMessage(regularMsg);
+    }
+
+    private boolean isOnIsland(Player p){
+        Location playerLocation = p.getLocation();
+        PortalTypes portalType = PortalTypes.getType(cm, p.getWorld());
+        idcm = new IslandDataConfigManager(plugin);
+
+        if(portalType != null){
+            Location islandLocation = idcm.getIslandLocation(portalType, p.getUniqueId());
+            return islandLocation.distance(playerLocation) < 50;
+        }
+        return false;
     }
 
 }
